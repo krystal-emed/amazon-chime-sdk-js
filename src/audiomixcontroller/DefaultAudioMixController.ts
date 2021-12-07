@@ -7,6 +7,7 @@ import DefaultBrowserBehavior from '../browserbehavior/DefaultBrowserBehavior';
 import Logger from '../logger/Logger';
 import AsyncScheduler from '../scheduler/AsyncScheduler';
 import AudioMixController from './AudioMixController';
+import DefaultDeviceController from '../devicecontroller/DefaultDeviceController'
 
 /** @internal */
 interface AudioElementWithSinkId extends HTMLAudioElement {
@@ -50,7 +51,24 @@ export default class DefaultAudioMixController implements AudioMixController {
       return;
     }
 
-    this.audioStream = stream;
+    console.log("binding audio stream")
+    if (this.browserBehavior.hasWebKitWebRTC() && this.browserBehavior.version() == "15.1.0") {
+      // do we need to validate the stream/tracks are output? not sure if this is something available from track kind/label
+      const audioCtx = DefaultDeviceController.getAudioContext();      
+      const audioTracks = stream.getAudioTracks();
+      const audioNode = audioCtx.createMediaStreamSource(new MediaStream(audioTracks));
+      const gainNode = audioCtx.createGain();
+
+      gainNode.gain.value = 5;
+      
+      audioNode.connect(gainNode)
+      //do we need a new destination stream created from the audio ctx?
+      // const destinationStream = audioCtx.createMediaStreamDestination();
+      // gainNode.connect(destinationStream);
+      gainNode.connect(audioCtx.destination);
+    } else {
+      this.audioStream = stream;
+    }
 
     try {
       await this.bindAudioMix();

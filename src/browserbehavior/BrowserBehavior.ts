@@ -18,6 +18,11 @@ export default interface BrowserBehavior {
   name(): string;
 
   /**
+   * Returns whether the browser has a Webkit WebRTC implementation
+   */
+  hasWebKitWebRTC(): boolean;
+
+  /**
    * Returns whether the browser has a Chromium WebRTC implementation
    */
   hasChromiumWebRTC(): boolean;
