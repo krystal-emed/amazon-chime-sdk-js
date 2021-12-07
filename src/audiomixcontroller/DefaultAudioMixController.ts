@@ -62,13 +62,15 @@ export default class DefaultAudioMixController implements AudioMixController {
       gainNode.gain.value = 5;
       
       audioNode.connect(gainNode)
-      //do we need a new destination stream created from the audio ctx?
-      // const destinationStream = audioCtx.createMediaStreamDestination();
-      // gainNode.connect(destinationStream);
       gainNode.connect(audioCtx.destination);
-    } else {
-      this.audioStream = stream;
-    }
+
+      //do we need to create a new stream entirely from the audio graph?
+      //const destinationStream = audioCtx.createMediaStreamDestination();
+      //gainNode.connect(destinationStream);
+      //this.audioStream = destinationStream.stream
+    } 
+
+    this.audioStream = stream;
 
     try {
       await this.bindAudioMix();
